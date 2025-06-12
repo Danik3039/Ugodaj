@@ -1,3 +1,4 @@
+<!-- ПОЛНЫЙ HTML + CSS + JS в одном -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,9 +6,12 @@
   <title>Угадай число — Онлайн игра</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      background: #f0f8ff;
+      background: #e6f2ff;
       margin: 0;
       padding: 0;
     }
@@ -22,64 +26,32 @@
     }
     #profile-menu {
       display: none;
-      position: absolute;
-      right: 10px;
-      top: 55px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
+      border: 2px solid #007acc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 999;
+      padding: 20px;
+      text-align: center;
+      width: 250px;
     }
     #profile-menu button {
-      background: white;
-      border: none;
-      width: 100%;
-      padding: 10px;
-      text-align: left;
-      cursor: pointer;
-    }
-    #profile-menu button:hover {
-      background: #f0f0f0;
-    }
-    main {
-      max-width: 400px;
-      margin: 50px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px #aaa;
-    }
-    h1 {
-      text-align: center;
-      color: #007acc;
-    }
-    label, input, button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-    }
-    input, button {
-      padding: 8px;
-      font-size: 16px;
-    }
-    button {
-      cursor: pointer;
       background: #007acc;
       color: white;
       border: none;
-      border-radius: 4px;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      width: 100%;
+      cursor: pointer;
     }
-    button:hover {
-      background: #005a99;
-    }
-    #game-section {
-      display: none;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      text-align: center;
+    #profile-menu button:hover {
+      background: #005fa3;
     }
     #secret-overlay {
       position: fixed;
@@ -89,155 +61,185 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 1000;
     }
     #secret-overlay h1 {
-      font-size: 50px;
+      font-size: 64px;
       color: red;
+      text-align: center;
+    }
+    main {
+      max-width: 400px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+      text-align: center;
+    }
+    h1 {
+      color: #007acc;
+    }
+    label, input, button {
+      width: 100%;
+      margin-top: 10px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    #result {
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    #timer {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #555;
     }
   </style>
 </head>
 <body>
 
-<header id="profile-header">Мой профиль
-  <div id="profile-menu">
-    <button id="show-name">Показать никнейм</button>
-    <button id="show-age">Показать возраст</button>
-    <button id="show-secret">СЕКРЕТ</button>
-  </div>
-</header>
+<header id="profile-header">Мой профиль</header>
+
+<div id="profile-menu">
+  <button id="show-name">Показать никнейм</button>
+  <button id="show-age">Показать возраст</button>
+  <button id="show-secret">СЕКРЕТ</button>
+  <button onclick="closeMenu()">Закрыть</button>
+</div>
 
 <div id="secret-overlay">
-  <h1>ЖЕ СЕКРЕТ</h1>
+  <h1>ЭТО ЖЕ СЕКРЕТ</h1>
 </div>
 
 <main>
   <section id="welcome-section">
     <h1>Введите данные</h1>
-    <label for="name-input">Как тебя зовут?</label>
+    <label>Имя:</label>
     <input type="text" id="name-input" placeholder="Введите имя" />
-    <label for="age-input">Сколько тебе лет?</label>
-    <input type="number" id="age-input" placeholder="Введите возраст" min="1" max="120" />
+    <label>Возраст:</label>
+    <input type="number" id="age-input" placeholder="Введите возраст" />
     <button id="start-btn">Начать</button>
-    <p id="welcome-message" style="color: red; font-weight: bold;"></p>
+    <p id="welcome-message" style="color:red;"></p>
   </section>
 
-  <section id="game-section">
+  <section id="game-section" style="display:none;">
     <h1>Я загадал число от 1 до 300</h1>
-    <label for="guess-input">Попробуй угадать:</label>
-    <input type="number" id="guess-input" placeholder="Введите число" min="1" max="300" />
+    <label>Попробуй угадать:</label>
+    <input type="number" id="guess-input" placeholder="Введите число" />
     <button id="guess-btn">Угадать</button>
+    <div id="timer">⏱ Время: 0 сек</div>
     <div id="result"></div>
-    <button id="retry-btn" style="display:none; margin-top:15px;">Попробовать ещё</button>
+    <button id="retry-btn" style="display:none;">Играть снова</button>
   </section>
 </main>
 
 <script>
-  const profileHeader = document.getElementById('profile-header');
-  const profileMenu = document.getElementById('profile-menu');
-  const secretOverlay = document.getElementById('secret-overlay');
-  const showNameBtn = document.getElementById('show-name');
-  const showAgeBtn = document.getElementById('show-age');
-  const showSecretBtn = document.getElementById('show-secret');
-
-  const welcomeSection = document.getElementById('welcome-section');
-  const gameSection = document.getElementById('game-section');
-  const startBtn = document.getElementById('start-btn');
-  const nameInput = document.getElementById('name-input');
-  const ageInput = document.getElementById('age-input');
-  const welcomeMessage = document.getElementById('welcome-message');
-
-  const guessInput = document.getElementById('guess-input');
-  const guessBtn = document.getElementById('guess-btn');
-  const resultDiv = document.getElementById('result');
-  const retryBtn = document.getElementById('retry-btn');
-
   let secretNumber = 0;
   let attempts = 0;
-  let playerName = '';
-  let playerAge = 0;
+  let timer = 0;
+  let timerInterval = null;
+  let name = '';
+  let age = '';
+
+  const profileMenu = document.getElementById("profile-menu");
+  const profileHeader = document.getElementById("profile-header");
+  const secretOverlay = document.getElementById("secret-overlay");
 
   profileHeader.onclick = () => {
-    profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+    profileMenu.style.display = "block";
   };
-
-  showNameBtn.onclick = () => {
-    alert("Твой никнейм: " + (playerName || "неизвестен"));
-    profileMenu.style.display = 'none';
-  };
-
-  showAgeBtn.onclick = () => {
-    alert("Твой возраст: " + (playerAge || "неизвестен"));
-    profileMenu.style.display = 'none';
-  };
-
-  showSecretBtn.onclick = () => {
-    secretOverlay.style.display = 'flex';
-    profileMenu.style.display = 'none';
-    setTimeout(() => {
-      secretOverlay.style.display = 'none';
-    }, 3000);
-  };
-
-  startBtn.onclick = () => {
-    playerName = nameInput.value.trim();
-    playerAge = parseInt(ageInput.value);
-
-    if (!playerName) {
-      welcomeMessage.textContent = "Пожалуйста, введите имя.";
-      return;
-    }
-    if (!playerAge || playerAge < 1 || playerAge > 120) {
-      welcomeMessage.textContent = "Пожалуйста, введите корректный возраст.";
-      return;
-    }
-
-    if (playerAge < 18) {
-      welcomeMessage.style.color = 'red';
-      welcomeMessage.textContent = `Привет, ${playerName}! Тебе пока нельзя на сайт.`;
-    } else {
-      welcomeMessage.style.color = 'green';
-      welcomeMessage.textContent = `Добро пожаловать, ${playerName}!`;
-      welcomeSection.style.display = 'none';
-      gameSection.style.display = 'block';
-      resetGame();
-    }
-  };
-
-  function resetGame() {
-    secretNumber = Math.floor(Math.random() * 300) + 1;
-    attempts = 0;
-    guessInput.value = '';
-    resultDiv.textContent = '';
-    retryBtn.style.display = 'none';
+  function closeMenu() {
+    profileMenu.style.display = "none";
   }
 
-  guessBtn.onclick = () => {
-    const guess = Number(guessInput.value.trim());
+  document.getElementById("show-name").onclick = () => {
+    alert("Ник: " + (name || "неизвестен"));
+  };
+  document.getElementById("show-age").onclick = () => {
+    alert("Возраст: " + (age || "неизвестен"));
+  };
+  document.getElementById("show-secret").onclick = () => {
+    profileMenu.style.display = "none";
+    secretOverlay.style.display = "flex";
+    setTimeout(() => secretOverlay.style.display = "none", 3000);
+  };
+
+  document.getElementById("start-btn").onclick = () => {
+    name = document.getElementById("name-input").value.trim();
+    age = parseInt(document.getElementById("age-input").value.trim());
+    const welcome = document.getElementById("welcome-message");
+
+    if (!name || !age || age <= 0) {
+      welcome.textContent = "Введите имя и возраст правильно.";
+      return;
+    }
+
+    if (age < 18) {
+      welcome.textContent = "Извини, доступ только с 18 лет!";
+      return;
+    }
+
+    document.getElementById("welcome-section").style.display = "none";
+    document.getElementById("game-section").style.display = "block";
+    startGame();
+  };
+
+  function startGame() {
+    secretNumber = Math.floor(Math.random() * 300) + 1;
+    attempts = 0;
+    timer = 0;
+    document.getElementById("result").textContent = "";
+    document.getElementById("guess-input").value = "";
+    document.getElementById("retry-btn").style.display = "none";
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timer++;
+      document.getElementById("timer").textContent = "⏱ Время: " + timer + " сек";
+    }, 1000);
+  }
+
+  document.getElementById("guess-btn").onclick = () => {
+    const guess = parseInt(document.getElementById("guess-input").value.trim());
+    const result = document.getElementById("result");
 
     if (!guess || guess < 1 || guess > 300) {
-      resultDiv.textContent = "Введите число от 1 до 300!";
-      resultDiv.style.color = 'red';
+      result.textContent = "Введите число от 1 до 300!";
+      result.style.color = "black";
       return;
     }
 
     attempts++;
 
     if (guess === secretNumber) {
-      resultDiv.style.color = 'green';
-      resultDiv.textContent = `🎉 Угадал! Это было ${secretNumber}. Попыток: ${attempts}`;
-      retryBtn.style.display = 'inline-block';
+      clearInterval(timerInterval);
+      result.textContent = `🎉 Угадал число ${secretNumber}! Попыток: ${attempts}`;
+      result.style.color = "green";
+      document.getElementById("retry-btn").style.display = "block";
     } else if (guess < secretNumber) {
-      resultDiv.style.color = '#ffc0cb'; // нежно-красный
-      resultDiv.textContent = "🔼 Слишком мало!";
+      result.textContent = "🔼 Слишком мало!";
+      result.style.color = "#ffb6c1"; // нежно-красный
     } else {
-      resultDiv.style.color = '#ff0000'; // остро-красный
-      resultDiv.textContent = "🔽 Слишком много!";
+      result.textContent = "🔽 Слишком много!";
+      result.style.color = "#ff0000"; // остро-красный
     }
   };
 
-  retryBtn.onclick = () => {
-    resetGame();
+  document.getElementById("retry-btn").onclick = () => {
+    startGame();
   };
 </script>
 
