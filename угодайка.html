@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Угадай число</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f8ff;
+    margin: 0; padding: 0;
+  }
+  header {
+    background: #007acc;
+    color: white;
+    padding: 15px;
+    text-align: right;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  main {
+    max-width: 400px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px #aaa;
+  }
+  h1 {
+    text-align: center;
+    color: #007acc;
+  }
+  label, input, button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+  }
+  input, button {
+    padding: 8px;
+    font-size: 16px;
+  }
+  button {
+    cursor: pointer;
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  button:hover {
+    background: #005a99;
+  }
+  #game-section {
+    display: none;
+  }
+  #result {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header id="profile-header">Мой профиль</header>
+
+<main>
+
+  <section id="welcome-section">
+    <h1>Введите данные</h1>
+    <label for="name-input">Как тебя зовут?</label>
+    <input type="text" id="name-input" placeholder="Введите имя" />
+    <label for="age-input">Сколько тебе лет?</label>
+    <input type="number" id="age-input" placeholder="Введите возраст" min="1" max="120" />
+    <button id="start-btn">Начать</button>
+    <p id="welcome-message" style="color: red; font-weight: bold;"></p>
+  </section>
+
+  <section id="game-section">
+    <h1>Я загадал число от 1 до 100</h1>
+    <label for="guess-input">Попробуй угадать:</label>
+    <input type="number" id="guess-input" placeholder="Введите число" min="1" max="100" />
+    <button id="guess-btn">Угадать</button>
+    <div id="result"></div>
+    <button id="retry-btn" style="display:none; margin-top:15px;">Попробовать ещё</button>
+  </section>
+
+</main>
+
+<script>
+  const profileHeader = document.getElementById('profile-header');
+  const welcomeSection = document.getElementById('welcome-section');
+  const gameSection = document.getElementById('game-section');
+  const startBtn = document.getElementById('start-btn');
+  const nameInput = document.getElementById('name-input');
+  const ageInput = document.getElementById('age-input');
+  const welcomeMessage = document.getElementById('welcome-message');
+
+  const guessInput = document.getElementById('guess-input');
+  const guessBtn = document.getElementById('guess-btn');
+  const resultDiv = document.getElementById('result');
+  const retryBtn = document.getElementById('retry-btn');
+
+  profileHeader.onclick = () => {
+    alert("Пока на ремонте");
+  };
+
+  startBtn.onclick = () => {
+    const name = nameInput.value.trim();
+    const age = parseInt(ageInput.value);
+
+    if (!name) {
+      welcomeMessage.textContent = "Пожалуйста, введите имя.";
+      return;
+    }
+    if (!age || age < 1 || age > 120) {
+      welcomeMessage.textContent = "Пожалуйста, введите корректный возраст.";
+      return;
+    }
+
+    if (age < 18) {
+      welcomeMessage.style.color = 'red';
+      welcomeMessage.textContent = `Привет, ${name}! Тебе пока нельзя на сайт.`;
+    } else {
+      welcomeMessage.style.color = 'green';
+      welcomeMessage.textContent = `Добро пожаловать, ${name}!`;
+      // Показать игру, скрыть ввод
+      welcomeSection.style.display = 'none';
+      gameSection.style.display = 'block';
+      resetGame();
+    }
+  };
+
+  function resetGame() {
+    guessInput.value = '';
+    resultDiv.textContent = '';
+    retryBtn.style.display = 'none';
+  }
+
+  guessBtn.onclick = () => {
+    const guess = guessInput.value.trim();
+
+    if (guess === '') {
+      resultDiv.textContent = "Введите число!";
+      resultDiv.style.color = 'red';
+      return;
+    }
+
+    if (guess === "7") {
+      resultDiv.style.color = 'green';
+      resultDiv.textContent = "ТЫ ВЫЙГРАЛ МИЛЛИОН НАСКОВ!!!!!";
+      retryBtn.style.display = 'inline-block';
+    } else {
+      resultDiv.style.color = 'red';
+      resultDiv.textContent = "ЭХ ТЫ ПРОИГРАЛ";
+      retryBtn.style.display = 'inline-block';
+    }
+  };
+
+  retryBtn.onclick = () => {
+    resetGame();
+  };
+</script>
+
+</body>
+</html>
