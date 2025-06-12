@@ -7,9 +7,28 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #eaf4ff;
+      background: #f0f8ff;
       margin: 0;
       padding: 0;
+      display: flex;
+    }
+
+    /* Сайдбар */
+    .sidebar {
+      width: 200px;
+      background: #ddeeff;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+    }
+
+    /* Основной контент */
+    .container {
+      flex-grow: 1;
+      padding: 20px;
     }
 
     header {
@@ -22,12 +41,12 @@
     }
 
     main {
-      max-width: 400px;
-      margin: 50px auto;
+      max-width: 500px;
+      margin: 20px auto;
       background: white;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #aaa;
     }
 
     h1 {
@@ -50,12 +69,12 @@
       background: #007acc;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #005fa3;
+      background: #005a99;
     }
 
     #game-section {
@@ -63,206 +82,223 @@
     }
 
     #result {
-      text-align: center;
-      font-weight: bold;
       margin-top: 20px;
-    }
-
-    #retry-btn {
-      display: none;
-      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
     }
 
     #timer {
       text-align: center;
       font-size: 18px;
+      color: #ff6600;
       margin-top: 10px;
-      color: #333;
     }
 
+    /* Модальное окно */
     #profile-menu {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
       display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border: 2px solid #007acc;
+      box-shadow: 0 0 10px #00000050;
       z-index: 999;
-      padding: 10px;
+      text-align: center;
     }
 
     #profile-menu button {
-      margin: 5px 0;
-      width: 200px;
+      margin: 10px 0;
+      background: #007acc;
     }
 
-    #secret-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: white;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    #secret-overlay h1 {
-      color: red;
+    #secret-msg {
       font-size: 48px;
+      color: red;
+      display: none;
       text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-<header id="profile-header">Мой профиль</header>
-
-<div id="profile-menu">
-  <button id="show-name">Показать ник</button>
-  <button id="show-age">Показать возраст</button>
-  <button id="show-secret">Секрет</button>
+<div class="sidebar">
+  <h3>Результаты</h3>
+  <p>🏆 Лучший: <span id="best-score">—</span></p>
+  <p>💀 Худший: <span id="worst-score">—</span></p>
 </div>
 
-<div id="secret-overlay"><h1>ЭТО ЖЕ СЕКРЕТ!</h1></div>
+<div class="container">
+  <header id="profile-header">Мой профиль</header>
 
-<main>
-  <section id="welcome-section">
-    <h1>Введите данные</h1>
-    <label for="name-input">Как тебя зовут?</label>
-    <input type="text" id="name-input" placeholder="Введите имя" />
-    <label for="age-input">Сколько тебе лет?</label>
-    <input type="number" id="age-input" placeholder="Введите возраст" min="1" max="120" />
-    <button id="start-btn">Начать</button>
-    <p id="welcome-message" style="color:red; font-weight:bold;"></p>
-  </section>
+  <main>
+    <section id="welcome-section">
+      <h1>Введите данные</h1>
+      <label>Имя:</label>
+      <input type="text" id="name-input" placeholder="Введите имя" />
+      <label>Возраст:</label>
+      <input type="number" id="age-input" placeholder="Введите возраст" />
+      <button id="start-btn">Начать</button>
+      <p id="welcome-message" style="color: red; font-weight: bold;"></p>
+    </section>
 
-  <section id="game-section">
-    <h1>Я загадал число от 1 до 300</h1>
-    <label for="guess-input">Попробуй угадать:</label>
-    <input type="number" id="guess-input" placeholder="Введите число" min="1" max="300" />
-    <button id="guess-btn">Угадать</button>
-    <div id="timer"></div>
-    <div id="result"></div>
-    <button id="retry-btn">Попробовать снова</button>
-  </section>
-</main>
+    <section id="game-section">
+      <h1>Угадай число от 1 до 300</h1>
+      <label>Введите число:</label>
+      <input type="number" id="guess-input" />
+      <button id="guess-btn">Угадать</button>
+      <div id="result"></div>
+      <div id="timer">Осталось: 60 сек.</div>
+      <button id="retry-btn" style="display: none;">Играть снова</button>
+    </section>
+  </main>
+</div>
+
+<!-- Меню профиля -->
+<div id="profile-menu">
+  <button id="show-name">Показать имя</button>
+  <button id="show-age">Показать возраст</button>
+  <button id="show-secret">Секрет</button>
+  <button onclick="document.getElementById('profile-menu').style.display='none'">Закрыть</button>
+</div>
+
+<!-- Секрет -->
+<div id="secret-msg">ЭТО ЖЕ СЕКРЕТ</div>
 
 <script>
+  const profileHeader = document.getElementById('profile-header');
+  const profileMenu = document.getElementById('profile-menu');
+  const nameInput = document.getElementById('name-input');
+  const ageInput = document.getElementById('age-input');
+  const welcomeMessage = document.getElementById('welcome-message');
+  const welcomeSection = document.getElementById('welcome-section');
+  const gameSection = document.getElementById('game-section');
+  const startBtn = document.getElementById('start-btn');
+  const guessInput = document.getElementById('guess-input');
+  const guessBtn = document.getElementById('guess-btn');
+  const resultDiv = document.getElementById('result');
+  const retryBtn = document.getElementById('retry-btn');
+  const timerDiv = document.getElementById('timer');
+  const bestScoreSpan = document.getElementById('best-score');
+  const worstScoreSpan = document.getElementById('worst-score');
+
   let secretNumber = 0;
   let attempts = 0;
-  let timer = 60;
-  let timerInterval = null;
-  let name = "";
-  let age = "";
-  let gameOver = false;
+  let timer;
+  let timeLeft = 60;
+  let playerName = "";
+  let playerAge = "";
 
-  const profileMenu = document.getElementById("profile-menu");
-  const profileHeader = document.getElementById("profile-header");
-  const secretOverlay = document.getElementById("secret-overlay");
+  function resetGame() {
+    secretNumber = Math.floor(Math.random() * 300) + 1;
+    attempts = 0;
+    guessInput.value = '';
+    resultDiv.textContent = '';
+    resultDiv.style.background = '';
+    retryBtn.style.display = 'none';
+    timeLeft = 60;
+    updateTimer();
+    clearInterval(timer);
+    timer = setInterval(updateTimer, 1000);
+  }
+
+  function updateTimer() {
+    timerDiv.textContent = `Осталось: ${timeLeft} сек.`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      resultDiv.style.color = 'black';
+      resultDiv.textContent = `⏰ Время вышло! Я загадал число ${secretNumber}.`;
+      retryBtn.style.display = 'inline-block';
+    }
+    timeLeft--;
+  }
 
   profileHeader.onclick = () => {
-    profileMenu.style.display = "block";
+    profileMenu.style.display = 'block';
+    document.getElementById('secret-msg').style.display = 'none';
   };
 
-  document.getElementById("show-name").onclick = () => {
-    alert("Ник: " + (name || "неизвестен"));
-  };
-  document.getElementById("show-age").onclick = () => {
-    alert("Возраст: " + (age || "неизвестен"));
-  };
-  document.getElementById("show-secret").onclick = () => {
-    profileMenu.style.display = "none";
-    secretOverlay.style.display = "flex";
-    setTimeout(() => secretOverlay.style.display = "none", 3000);
+  document.getElementById('show-name').onclick = () => alert(`Твоё имя: ${playerName}`);
+  document.getElementById('show-age').onclick = () => alert(`Твой возраст: ${playerAge}`);
+  document.getElementById('show-secret').onclick = () => {
+    profileMenu.style.display = 'none';
+    document.getElementById('secret-msg').style.display = 'block';
   };
 
-  document.getElementById("start-btn").onclick = () => {
-    name = document.getElementById("name-input").value.trim();
-    age = parseInt(document.getElementById("age-input").value.trim());
-    const welcome = document.getElementById("welcome-message");
+  startBtn.onclick = () => {
+    const name = nameInput.value.trim();
+    const age = parseInt(ageInput.value);
 
     if (!name || !age || age < 1 || age > 120) {
-      welcome.textContent = "Пожалуйста, введите корректные данные.";
+      welcomeMessage.textContent = "Введите корректные имя и возраст.";
       return;
     }
 
     if (age < 18) {
-      welcome.textContent = "Извините, доступ только с 18 лет.";
+      welcomeMessage.textContent = `Привет, ${name}! Тебе пока нельзя на сайт.`;
       return;
     }
 
-    document.getElementById("welcome-section").style.display = "none";
-    document.getElementById("game-section").style.display = "block";
-    startGame();
+    playerName = name;
+    playerAge = age;
+    welcomeSection.style.display = 'none';
+    gameSection.style.display = 'block';
+    document.getElementById('secret-msg').style.display = 'none';
+    resetGame();
   };
 
-  function startGame() {
-    secretNumber = Math.floor(Math.random() * 300) + 1;
-    attempts = 0;
-    timer = 60;
-    gameOver = false;
-
-    document.getElementById("result").textContent = "";
-    document.getElementById("guess-input").value = "";
-    document.getElementById("retry-btn").style.display = "none";
-    document.getElementById("timer").textContent = "⏱ Осталось: 60 сек";
-
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      timer--;
-      document.getElementById("timer").textContent = "⏱ Осталось: " + timer + " сек";
-      if (timer <= 0) {
-        clearInterval(timerInterval);
-        endGame(false);
-      }
-    }, 1000);
-  }
-
-  function endGame(won) {
-    gameOver = true;
-    document.getElementById("retry-btn").style.display = "block";
-    const result = document.getElementById("result");
-
-    if (!won) {
-      result.innerHTML = `⏰ Время вышло!<br>К сожалению, я загадал число: <strong>${secretNumber}</strong>`;
-      result.style.color = "red";
-    }
-  }
-
-  document.getElementById("guess-btn").onclick = () => {
-    if (gameOver) return;
-
-    const guess = parseInt(document.getElementById("guess-input").value.trim());
-    const result = document.getElementById("result");
-
+  guessBtn.onclick = () => {
+    const guess = parseInt(guessInput.value);
     if (!guess || guess < 1 || guess > 300) {
-      result.textContent = "Введите число от 1 до 300!";
-      result.style.color = "black";
+      resultDiv.textContent = "Введите число от 1 до 300!";
+      resultDiv.style.color = 'red';
       return;
     }
 
     attempts++;
 
     if (guess === secretNumber) {
-      clearInterval(timerInterval);
-      result.textContent = `🎉 Угадал число ${secretNumber}! Попыток: ${attempts}`;
-      result.style.color = "green";
-      document.getElementById("retry-btn").style.display = "block";
-      gameOver = true;
+      resultDiv.style.color = 'green';
+      resultDiv.textContent = `🎉 Правильно! За ${attempts} попыток.`;
+      updateScores(attempts);
+      retryBtn.style.display = 'inline-block';
+      clearInterval(timer);
     } else if (guess < secretNumber) {
-      result.textContent = "🔼 Слишком мало!";
-      result.style.color = "#ffb6c1"; // нежно-красный
+      resultDiv.style.color = '#cc6666'; // мягкий красный
+      resultDiv.textContent = "🔼 Слишком мало!";
     } else {
-      result.textContent = "🔽 Слишком много!";
-      result.style.color = "#ff0000"; // остро-красный
+      resultDiv.style.color = '#cc0000'; // острый красный
+      resultDiv.textContent = "🔽 Слишком много!";
     }
   };
 
-  document.getElementById("retry-btn").onclick = () => {
-    startGame();
+  retryBtn.onclick = () => {
+    resetGame();
+  };
+
+  function updateScores(current) {
+    let best = localStorage.getItem("bestScore");
+    let worst = localStorage.getItem("worstScore");
+
+    if (!best || current < best) {
+      localStorage.setItem("bestScore", current);
+    }
+
+    if (!worst || current > worst) {
+      localStorage.setItem("worstScore", current);
+    }
+
+    bestScoreSpan.textContent = localStorage.getItem("bestScore");
+    worstScoreSpan.textContent = localStorage.getItem("worstScore");
+  }
+
+  // при загрузке
+  window.onload = () => {
+    bestScoreSpan.textContent = localStorage.getItem("bestScore") || '—';
+    worstScoreSpan.textContent = localStorage.getItem("worstScore") || '—';
   };
 </script>
 
