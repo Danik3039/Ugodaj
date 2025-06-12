@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Угадай число — Онлайн игра</title>
-  <meta name="google-site-verification" content="v7-8JeVbFhGv26TVU8wMR-gvDKTPFWavkqqm3-_PjCI" />
-
-  <!-- ✅ SEO-оптимизация -->
-  <meta name="description" content="Бесплатная онлайн игра 'Угадай число'. Введите имя и возраст, и проверьте свою удачу!" />
-  <meta name="keywords" content="угадай число, игра угадайка, javascript игра, онлайн игра, развлечение" />
+  <meta name="description" content="Онлайн игра 'Угадай число'. Введите имя и возраст и проверьте свою удачу!" />
+  <meta name="keywords" content="угадай число, игра угадайка, javascript игра" />
   <meta name="author" content="Danik3039" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -15,7 +12,8 @@
     body {
       font-family: Arial, sans-serif;
       background: #f0f8ff;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
     }
     header {
       background: #007acc;
@@ -59,10 +57,14 @@
     #game-section {
       display: none;
     }
-    #result {
+    #result, #timer, #highscore {
       margin-top: 20px;
       font-weight: bold;
       text-align: center;
+    }
+    #retry-btn {
+      display: none;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -83,13 +85,18 @@
 
   <section id="game-section">
     <h1>Я загадал число от 1 до 1000</h1>
+    <div id="timer">⏳ 60</div>
     <label for="guess-input">Попробуй угадать:</label>
     <input type="number" id="guess-input" placeholder="Введите число" min="1" max="1000" />
     <button id="guess-btn">Угадать</button>
     <div id="result"></div>
-    <button id="retry-btn" style="display:none; margin-top:15px;">Попробовать ещё</button>
+    <div id="highscore"></div>
+    <button id="retry-btn">Попробовать ещё</button>
   </section>
 </main>
+
+<audio id="win-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="fail-sound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
 
 <script>
   const profileHeader = document.getElementById('profile-header');
@@ -104,10 +111,18 @@
   const guessBtn = document.getElementById('guess-btn');
   const resultDiv = document.getElementById('result');
   const retryBtn = document.getElementById('retry-btn');
+  const timerDiv = document.getElementById('timer');
+  const highscoreDiv = document.getElementById('highscore');
+  const winSound = document.getElementById('win-sound');
+  const failSound = document.getElementById('fail-sound');
 
-  profileHeader.onclick = () => {
-    alert("Пока на ремонте");
-  };
+  let secretNumber = 0;
+  let attempts = 0;
+  let highscore = null;
+  let countdown = 60;
+  let timer;
+
+  profileHeader.onclick = () => alert("Пока на ремонте");
 
   startBtn.onclick = () => {
     const name = nameInput.value.trim();
@@ -135,34 +150,59 @@
   };
 
   function resetGame() {
+    secretNumber = Math.floor(Math.random() * 1000) + 1;
+    attempts = 0;
     guessInput.value = '';
     resultDiv.textContent = '';
     retryBtn.style.display = 'none';
+    countdown = 60;
+    timerDiv.textContent = `⏳ ${countdown}`;
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      countdown--;
+      timerDiv.textContent = `⏳ ${countdown}`;
+      if (countdown <= 0) {
+        clearInterval(timer);
+        resultDiv.style.color = 'red';
+        resultDiv.textContent = `⌛ Время вышло! Было загадано: ${secretNumber}`;
+        retryBtn.style.display = 'inline-block';
+        failSound.play();
+      }
+    }, 1000);
   }
 
   guessBtn.onclick = () => {
-    const guess = guessInput.value.trim();
-
-    if (guess === '') {
-      resultDiv.textContent = "Введите число!";
+    const guess = Number(guessInput.value.trim());
+    if (!guess || guess < 1 || guess > 1000) {
+      resultDiv.textContent = "Введите число от 1 до 1000!";
       resultDiv.style.color = 'red';
       return;
     }
 
-    if (guess === "7") {
+    attempts++;
+
+    if (guess === secretNumber) {
+      clearInterval(timer);
       resultDiv.style.color = 'green';
-      resultDiv.textContent = "ТЫ ВЫЙГРАЛ МИЛЛИОН НАСКОВ!!!!!";
+      resultDiv.textContent = `🎉 Правильно! Ты угадал число ${secretNumber} за ${attempts} попыток!`;
+      if (highscore === null || attempts < highscore) {
+        highscore = attempts;
+        highscoreDiv.textContent = `🏆 Новый рекорд: ${highscore} попыток!`;
+      } else {
+        highscoreDiv.textContent = `Рекорд: ${highscore} попыток`;
+      }
       retryBtn.style.display = 'inline-block';
+      winSound.play();
+    } else if (guess < secretNumber) {
+      resultDiv.style.color = 'orange';
+      resultDiv.textContent = "🔼 Слишком мало!";
     } else {
-      resultDiv.style.color = 'red';
-      resultDiv.textContent = "ЭХ ТЫ ПРОИГРАЛ";
-      retryBtn.style.display = 'inline-block';
+      resultDiv.style.color = 'orange';
+      resultDiv.textContent = "🔽 Слишком много!";
     }
   };
 
-  retryBtn.onclick = () => {
-    resetGame();
-  };
+  retryBtn.onclick = () => resetGame();
 </script>
 
 </body>
