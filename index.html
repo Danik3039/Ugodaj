@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Угадай число — Онлайн игра</title>
-  <meta name="description" content="Онлайн игра 'Угадай число'. Введите имя и возраст и проверьте свою удачу!" />
-  <meta name="keywords" content="угадай число, игра угадайка, javascript игра" />
-  <meta name="author" content="Danik3039" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,6 +18,29 @@
       text-align: right;
       cursor: pointer;
       font-weight: bold;
+      position: relative;
+    }
+    #profile-menu {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 55px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    #profile-menu button {
+      background: white;
+      border: none;
+      width: 100%;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+    #profile-menu button:hover {
+      background: #f0f0f0;
     }
     main {
       max-width: 400px;
@@ -57,20 +76,40 @@
     #game-section {
       display: none;
     }
-    #result, #timer, #highscore {
+    #result {
       margin-top: 20px;
       font-weight: bold;
       text-align: center;
     }
-    #retry-btn {
+    #secret-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: white;
       display: none;
-      margin-top: 15px;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #secret-overlay h1 {
+      font-size: 50px;
+      color: red;
     }
   </style>
 </head>
 <body>
 
-<header id="profile-header">Мой профиль</header>
+<header id="profile-header">Мой профиль
+  <div id="profile-menu">
+    <button id="show-name">Показать никнейм</button>
+    <button id="show-age">Показать возраст</button>
+    <button id="show-secret">СЕКРЕТ</button>
+  </div>
+</header>
+
+<div id="secret-overlay">
+  <h1>ЖЕ СЕКРЕТ</h1>
+</div>
 
 <main>
   <section id="welcome-section">
@@ -84,22 +123,23 @@
   </section>
 
   <section id="game-section">
-    <h1>Я загадал число от 1 до 1000</h1>
-    <div id="timer">⏳ 60</div>
+    <h1>Я загадал число от 1 до 300</h1>
     <label for="guess-input">Попробуй угадать:</label>
-    <input type="number" id="guess-input" placeholder="Введите число" min="1" max="1000" />
+    <input type="number" id="guess-input" placeholder="Введите число" min="1" max="300" />
     <button id="guess-btn">Угадать</button>
     <div id="result"></div>
-    <div id="highscore"></div>
-    <button id="retry-btn">Попробовать ещё</button>
+    <button id="retry-btn" style="display:none; margin-top:15px;">Попробовать ещё</button>
   </section>
 </main>
 
-<audio id="win-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-<audio id="fail-sound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
-
 <script>
   const profileHeader = document.getElementById('profile-header');
+  const profileMenu = document.getElementById('profile-menu');
+  const secretOverlay = document.getElementById('secret-overlay');
+  const showNameBtn = document.getElementById('show-name');
+  const showAgeBtn = document.getElementById('show-age');
+  const showSecretBtn = document.getElementById('show-secret');
+
   const welcomeSection = document.getElementById('welcome-section');
   const gameSection = document.getElementById('game-section');
   const startBtn = document.getElementById('start-btn');
@@ -111,38 +151,53 @@
   const guessBtn = document.getElementById('guess-btn');
   const resultDiv = document.getElementById('result');
   const retryBtn = document.getElementById('retry-btn');
-  const timerDiv = document.getElementById('timer');
-  const highscoreDiv = document.getElementById('highscore');
-  const winSound = document.getElementById('win-sound');
-  const failSound = document.getElementById('fail-sound');
 
   let secretNumber = 0;
   let attempts = 0;
-  let highscore = null;
-  let countdown = 60;
-  let timer;
+  let playerName = '';
+  let playerAge = 0;
 
-  profileHeader.onclick = () => alert("Пока на ремонте");
+  profileHeader.onclick = () => {
+    profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+  };
+
+  showNameBtn.onclick = () => {
+    alert("Твой никнейм: " + (playerName || "неизвестен"));
+    profileMenu.style.display = 'none';
+  };
+
+  showAgeBtn.onclick = () => {
+    alert("Твой возраст: " + (playerAge || "неизвестен"));
+    profileMenu.style.display = 'none';
+  };
+
+  showSecretBtn.onclick = () => {
+    secretOverlay.style.display = 'flex';
+    profileMenu.style.display = 'none';
+    setTimeout(() => {
+      secretOverlay.style.display = 'none';
+    }, 3000);
+  };
 
   startBtn.onclick = () => {
-    const name = nameInput.value.trim();
-    const age = parseInt(ageInput.value);
+    playerName = nameInput.value.trim();
+    playerAge = parseInt(ageInput.value);
 
-    if (!name) {
+    if (!playerName) {
       welcomeMessage.textContent = "Пожалуйста, введите имя.";
       return;
     }
-    if (!age || age < 1 || age > 120) {
+    if (!playerAge || playerAge < 1 || playerAge > 120) {
       welcomeMessage.textContent = "Пожалуйста, введите корректный возраст.";
       return;
     }
 
-    if (age < 18) {
+    if (playerAge < 18) {
       welcomeMessage.style.color = 'red';
-      welcomeMessage.textContent = `Привет, ${name}! Тебе пока нельзя на сайт.`;
+      welcomeMessage.textContent = `Привет, ${playerName}! Тебе пока нельзя на сайт.`;
     } else {
       welcomeMessage.style.color = 'green';
-      welcomeMessage.textContent = `Добро пожаловать, ${name}!`;
+      welcomeMessage.textContent = `Добро пожаловать, ${playerName}!`;
       welcomeSection.style.display = 'none';
       gameSection.style.display = 'block';
       resetGame();
@@ -150,31 +205,18 @@
   };
 
   function resetGame() {
-    secretNumber = Math.floor(Math.random() * 1000) + 1;
+    secretNumber = Math.floor(Math.random() * 300) + 1;
     attempts = 0;
     guessInput.value = '';
     resultDiv.textContent = '';
     retryBtn.style.display = 'none';
-    countdown = 60;
-    timerDiv.textContent = `⏳ ${countdown}`;
-    if (timer) clearInterval(timer);
-    timer = setInterval(() => {
-      countdown--;
-      timerDiv.textContent = `⏳ ${countdown}`;
-      if (countdown <= 0) {
-        clearInterval(timer);
-        resultDiv.style.color = 'red';
-        resultDiv.textContent = `⌛ Время вышло! Было загадано: ${secretNumber}`;
-        retryBtn.style.display = 'inline-block';
-        failSound.play();
-      }
-    }, 1000);
   }
 
   guessBtn.onclick = () => {
     const guess = Number(guessInput.value.trim());
-    if (!guess || guess < 1 || guess > 1000) {
-      resultDiv.textContent = "Введите число от 1 до 1000!";
+
+    if (!guess || guess < 1 || guess > 300) {
+      resultDiv.textContent = "Введите число от 1 до 300!";
       resultDiv.style.color = 'red';
       return;
     }
@@ -182,27 +224,21 @@
     attempts++;
 
     if (guess === secretNumber) {
-      clearInterval(timer);
       resultDiv.style.color = 'green';
-      resultDiv.textContent = `🎉 Правильно! Ты угадал число ${secretNumber} за ${attempts} попыток!`;
-      if (highscore === null || attempts < highscore) {
-        highscore = attempts;
-        highscoreDiv.textContent = `🏆 Новый рекорд: ${highscore} попыток!`;
-      } else {
-        highscoreDiv.textContent = `Рекорд: ${highscore} попыток`;
-      }
+      resultDiv.textContent = `🎉 Угадал! Это было ${secretNumber}. Попыток: ${attempts}`;
       retryBtn.style.display = 'inline-block';
-      winSound.play();
     } else if (guess < secretNumber) {
-      resultDiv.style.color = 'orange';
+      resultDiv.style.color = '#ffc0cb'; // нежно-красный
       resultDiv.textContent = "🔼 Слишком мало!";
     } else {
-      resultDiv.style.color = 'orange';
+      resultDiv.style.color = '#ff0000'; // остро-красный
       resultDiv.textContent = "🔽 Слишком много!";
     }
   };
 
-  retryBtn.onclick = () => resetGame();
+  retryBtn.onclick = () => {
+    resetGame();
+  };
 </script>
 
 </body>
