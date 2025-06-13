@@ -4,13 +4,20 @@
   <meta charset="UTF-8" />
   <title>Угадай число — Онлайн игра</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="abc123xyz456" /> <!-- ВСТАВЬ СВОЙ КОД -->
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f0f8ff;
       margin: 0;
       padding: 0;
       display: flex;
+      height: 100vh;
     }
 
     /* Сайдбар */
@@ -19,6 +26,9 @@
       background: #ddeeff;
       padding: 20px;
       box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .sidebar h3 {
@@ -28,7 +38,8 @@
     /* Основной контент */
     .container {
       flex-grow: 1;
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
@@ -41,6 +52,7 @@
     }
 
     main {
+      flex-grow: 1;
       max-width: 500px;
       margin: 20px auto;
       background: white;
@@ -94,7 +106,6 @@
       margin-top: 10px;
     }
 
-    /* Модальное окно */
     #profile-menu {
       display: none;
       position: fixed;
@@ -114,12 +125,28 @@
       background: #007acc;
     }
 
-    #secret-msg {
+    .secret-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .secret-page h1 {
       font-size: 48px;
       color: red;
-      display: none;
-      text-align: center;
-      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .secret-page button {
+      width: auto;
     }
   </style>
 </head>
@@ -165,8 +192,11 @@
   <button onclick="document.getElementById('profile-menu').style.display='none'">Закрыть</button>
 </div>
 
-<!-- Секрет -->
-<div id="secret-msg">ЭТО ЖЕ СЕКРЕТ</div>
+<!-- Страница секрета -->
+<div class="secret-page" id="secret-page">
+  <h1>ЭТО ЖЕ СИКРЕТ</h1>
+  <button onclick="document.getElementById('secret-page').style.display='none'">Закрыть</button>
+</div>
 
 <script>
   const profileHeader = document.getElementById('profile-header');
@@ -184,6 +214,7 @@
   const timerDiv = document.getElementById('timer');
   const bestScoreSpan = document.getElementById('best-score');
   const worstScoreSpan = document.getElementById('worst-score');
+  const secretPage = document.getElementById('secret-page');
 
   let secretNumber = 0;
   let attempts = 0;
@@ -197,7 +228,7 @@
     attempts = 0;
     guessInput.value = '';
     resultDiv.textContent = '';
-    resultDiv.style.background = '';
+    resultDiv.style.color = '';
     retryBtn.style.display = 'none';
     timeLeft = 60;
     updateTimer();
@@ -218,14 +249,14 @@
 
   profileHeader.onclick = () => {
     profileMenu.style.display = 'block';
-    document.getElementById('secret-msg').style.display = 'none';
+    secretPage.style.display = 'none';
   };
 
   document.getElementById('show-name').onclick = () => alert(`Твоё имя: ${playerName}`);
   document.getElementById('show-age').onclick = () => alert(`Твой возраст: ${playerAge}`);
   document.getElementById('show-secret').onclick = () => {
     profileMenu.style.display = 'none';
-    document.getElementById('secret-msg').style.display = 'block';
+    secretPage.style.display = 'flex';
   };
 
   startBtn.onclick = () => {
@@ -246,7 +277,7 @@
     playerAge = age;
     welcomeSection.style.display = 'none';
     gameSection.style.display = 'block';
-    document.getElementById('secret-msg').style.display = 'none';
+    secretPage.style.display = 'none';
     resetGame();
   };
 
@@ -267,10 +298,10 @@
       retryBtn.style.display = 'inline-block';
       clearInterval(timer);
     } else if (guess < secretNumber) {
-      resultDiv.style.color = '#cc6666'; // мягкий красный
+      resultDiv.style.color = '#cc6666';
       resultDiv.textContent = "🔼 Слишком мало!";
     } else {
-      resultDiv.style.color = '#cc0000'; // острый красный
+      resultDiv.style.color = '#cc0000';
       resultDiv.textContent = "🔽 Слишком много!";
     }
   };
@@ -295,7 +326,6 @@
     worstScoreSpan.textContent = localStorage.getItem("worstScore");
   }
 
-  // при загрузке
   window.onload = () => {
     bestScoreSpan.textContent = localStorage.getItem("bestScore") || '—';
     worstScoreSpan.textContent = localStorage.getItem("worstScore") || '—';
@@ -304,4 +334,5 @@
 
 </body>
 </html>
+
 
